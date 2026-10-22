@@ -1,20 +1,20 @@
-   name: Trivy scan
+name: Trivy scan
 
-   on:
-     push:
-     pull_request:
+on:
+  push:
+  pull_request:
 
-   jobs:
-     library-scan:
-      runs-on: ubuntu-latest
-      steps:
-       - name: Get the repo's files
-         uses: actions/checkout@v4
+jobs:
+  library-scan:
+   runs-on: ubuntu-latest
+   steps:
+    - name: Get the repo's files
+      uses: actions/checkout@v4
 
-       - name: Scan libraries with Trivy
-         uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25
-         with:
-           scan-type: fs
-           scan-ref: app
-           exit-code: "1"
-           severity: HIGH,CRITICAL
+    - name: Scan libraries with Trivy
+      uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25
+      with:
+        scan-type: fs
+        scan-ref: app
+        exit-code: "1"
+        severity: HIGH,CRITICAL
