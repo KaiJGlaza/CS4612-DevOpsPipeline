@@ -42,6 +42,9 @@ jobs:
       - name: Build the container image
         run: docker build -t cs4612-app app
 
+      - name: Find parts lists and bundled packages
+        run: docker run --rm --entrypoint sh cs4612-app -c 'find / \( -name "*.spdx.json" -o -name "*.cdx.json" -o -name "*.whl" \) 2>/dev/null'
+
       - name: Scan the image with Trivy
         uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25
         with:
