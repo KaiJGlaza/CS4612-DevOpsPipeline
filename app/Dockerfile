@@ -9,6 +9,9 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
+# Remove pip once the libraries are installed. Carries outdated copies of other libraries (flagged by Trivy).
+RUN pip uninstall -y pip
+
 # Copy in the app's code
 COPY . .
 
