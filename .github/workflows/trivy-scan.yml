@@ -1,0 +1,52 @@
+name: Trivy scan
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  library-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get the repo's files
+        uses: actions/checkout@v4
+
+      - name: Scan libraries with Trivy
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25
+        with:
+          scan-type: fs
+          scan-ref: app
+          exit-code: "1"
+          severity: HIGH,CRITICAL
+
+  dockerfile-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get the repo's files
+        uses: actions/checkout@v4
+    
+      - name: Check Dockerfile settings with Trivy
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25
+        with:
+          scan-type: config
+          scan-ref: app
+          exit-code: "1"
+          severity: HIGH,CRITICAL
+
+  image-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get the repo's files
+        uses: actions/checkout@v4
+
+      - name: Build the container image
+        run: docker build -t cs4612-app app
+
+      - name: Scan the image with Trivy
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25
+        with:
+          scan-type: image
+          image-ref: cs4612-app
+          exit-code: "1"
+          severity: HIGH,CRITICAL
+          ignore-unfixed: true
