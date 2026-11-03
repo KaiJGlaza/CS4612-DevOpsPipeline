@@ -1,7 +1,7 @@
 # Packages the app into a container image.
 
 # Start from a small, official Python image
-FROM python:3.13-slim
+FROM python:3.11.0-slim
 
 WORKDIR /app
 
