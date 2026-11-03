@@ -15,9 +15,5 @@ RUN pip uninstall -y pip
 # Copy in the app's code
 COPY . .
 
-# Run as a normal user instead of root (safer if the app is ever hacked)
-RUN useradd --create-home appuser
-USER appuser
-
 EXPOSE 5000
 CMD ["python", "app.py"]
