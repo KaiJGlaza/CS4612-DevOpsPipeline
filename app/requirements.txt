@@ -1,3 +1,3 @@
-# TEST (Kai): Flask 2.2.0 has CVE-2023-30861 (HIGH), so Trivy's library-scan fails. NEVER MERGE.
+# test 1: old flask with a known CVE, trivy should fail this. dont merge
 flask==2.2.0
 pytest==9.1.1
