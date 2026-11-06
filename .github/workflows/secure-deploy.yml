@@ -12,7 +12,8 @@ concurrency:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    # ubuntu-latest is now 26.04 with docker 29, and the ghcr push failed there with "denied"
+    runs-on: ubuntu-24.04
     permissions:
       contents: read
     steps:
@@ -39,7 +40,7 @@ jobs:
 
   deploy:
     needs: build
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     # waits here for a teammate to approve. DEPLOY_TOKEN only exists in this environment
     environment: production
     permissions:
