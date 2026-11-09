@@ -37,6 +37,7 @@ The test branches each change **one line** to remove one of those protections, s
 
 **The container** (`Dockerfile`):
 - starts from the small official `python:3.13-slim` image
+- installs Debian's latest security fixes (`apt-get upgrade`), added after Trivy caught unpatched zlib in the base image ([details](04-library-and-container-scanning.md#talking-point-a-real-incident-the-pipeline-caught-nov-9-2026))
 - installs the pinned libraries
 - removes `pip`, because Trivy flagged the outdated libraries bundled inside it
 - runs as a normal user (`appuser`), not root

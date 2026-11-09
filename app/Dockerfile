@@ -3,6 +3,10 @@
 # Start from a small, official Python image
 FROM python:3.13-slim
 
+# Install Debian's security fixes, so we don't wait for the official image to be rebuilt.
+# Added after Trivy flagged zlib (CVE-2026-85091, CVE-2026-76844) on Nov 9, 2026.
+RUN apt-get update && apt-get upgrade -y && rm -rf /var/lib/apt/lists/*
+
 WORKDIR /app
 
 # Install the libraries the app needs
