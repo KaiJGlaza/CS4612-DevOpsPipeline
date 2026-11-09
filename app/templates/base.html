@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Notes{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <header class="app-header">
+    <a class="app-name" href="{{ url_for('home') }}">Notes</a>
+    <form class="search" action="{{ url_for('search_page') }}" role="search">
+      <svg class="icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      <label class="visually-hidden" for="q">Search notes</label>
+      <input id="q" name="q" type="search" placeholder="Search notes" value="{{ q }}">
+    </form>
+  </header>
+
+  <div class="layout">
+    <nav class="sidebar" aria-label="All notes">
+      <a class="new-note" href="{{ url_for('home') }}#title">
+        <svg class="icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+        New note
+      </a>
+      {% if notes %}
+      <ul class="note-list">
+        {% for note in notes %}
+        <li>
+          <a href="{{ url_for('view_note', note_id=note.id) }}"{% if note.id == current_id %} aria-current="page"{% endif %}>
+            <span class="note-title">{{ note.title }}</span>
+            <span class="note-preview">{{ note.body[:80] or "No text" }}</span>
+          </a>
+        </li>
+        {% endfor %}
+      </ul>
+      {% else %}
+      <p class="list-empty">No notes yet. Write your first one.</p>
+      {% endif %}
+    </nav>
+
+    <main class="content">
+      {% block main %}{% endblock %}
+    </main>
+  </div>
+</body>
+</html>
