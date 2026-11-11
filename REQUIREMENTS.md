@@ -2,7 +2,7 @@
 
 Taken from our project proposal ("Secure DevOps Pipeline"). Check items off as they land on `main` and are verified, and note where the evidence lives.
 
-Status as of Nov 9. Presentation is **Nov 17**, report due **Dec 4**.
+Status as of Nov 9. Presentation is **Nov 18**, report due **Dec 4**.
 
 Legend: `[x]` done and verified · `[~]` partly done · `[ ]` not started
 
