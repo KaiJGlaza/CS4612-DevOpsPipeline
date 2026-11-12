@@ -31,6 +31,7 @@ We run the same small app through two pipelines and plant bad code to compare th
 | 5 | Secure deploy (approval + locked secret) | Kai | done | [05-secure-deploy.md](05-secure-deploy.md) |
 | 6 | Branch protection (rules on `main`) | Kai | done | [06-branch-protection.md](06-branch-protection.md) |
 | 7 | Test branches and results | everyone | in progress | [07-test-branches.md](07-test-branches.md) |
+| 8 | Threat model | Kai | done | [08-threat-model.md](08-threat-model.md) |
 
 What's still owed against the proposal is tracked in [`../REQUIREMENTS.md`](../REQUIREMENTS.md).
 

@@ -21,9 +21,9 @@ Legend: `[x]` done and verified · `[~]` partly done · `[ ]` not started
 
 | | Requirement | Owner | Evidence / notes |
 |---|---|---|---|
-| [ ] | Threat model written for this pipeline's environment | Kai | Not in the repo yet |
-| [ ] | Covers at least: dependency poisoning, secret exposure, unauthorized config changes | Kai | |
-| [ ] | Each threat mapped to the control that mitigates it (and the stage it sits at) | Kai | |
+| [x] | Threat model written for this pipeline's environment | Kai | `docs/08-threat-model.md` (STRIDE + risk rating, 11 threats) |
+| [x] | Covers at least: dependency poisoning, secret exposure, unauthorized config changes | Kai | T11 (dependency poisoning), T5 (secret exposure), T1 (direct changes to `main`, including workflow files) |
+| [x] | Each threat mapped to the control that mitigates it (and the stage it sits at) | Kai | Stage and Mitigation columns in `docs/08-threat-model.md` |
 
 ## 3. Security controls in the secured pipeline
 
@@ -36,7 +36,7 @@ Legend: `[x]` done and verified · `[~]` partly done · `[ ]` not started
 | [x] | Dependency scan at build | Phillip | `trivy-scan.yml` → `library-scan` |
 | [x] | Container image scan at build | Phillip | `trivy-scan.yml` → `image-scan` |
 | [x] | Dockerfile / config scan | Phillip | `trivy-scan.yml` → `dockerfile-scan` |
-| [~] | Infrastructure and runtime checks run **before deployment** | Kai | Scans gate the PR merge (required checks), but `secure-deploy.yml` doesn't re-run or `needs:` them. State this as the design or a limitation |
+| [x] | Infrastructure and runtime checks run **before deployment** | Kai | Scans gate the PR merge (required checks, branch up to date), so nothing reaches the deploy without passing them. `secure-deploy.yml` doesn't re-run them; listed as a residual risk in `docs/08-threat-model.md` |
 
 ### 3b. Tools
 
@@ -63,7 +63,7 @@ Legend: `[x]` done and verified · `[~]` partly done · `[ ]` not started
 | [x] | Secret never printed; only a fingerprint | Kai | `sha256sum` step in `secure-deploy.yml` |
 | [~] | Least-privilege `permissions:` on every workflow | All | `secure-deploy.yml` uses `permissions: {}` + per-job. `trivy-scan.yml` and `codeql.yml` have no top-level block; `gitleaks.yml` grants `pull-requests: write` workflow-wide |
 | [~] | Third-party actions pinned to commit SHAs | All | Pinned in `secure-deploy.yml`/Trivy action. Tags (`@v4`, `@v6`, `@v7`) still used in `codeql.yml`, `gitleaks.yml`, `trivy-scan.yml` checkout |
-| [ ] | Secrets in an **external store** (proposal names AWS Secrets Manager) | Kai | Currently GitHub environment secrets. Either implement or list it under limitations |
+| [ ] | Secrets in an **external store** (proposal names AWS Secrets Manager) | Kai | Not implemented: GitHub environment secrets are used instead. Listed as a limitation in `docs/05-secure-deploy.md` and `docs/08-threat-model.md` |
 | [x] | Role separation: author ≠ deploy approver | Kai | `production` env: required reviewers, `prevent_self_review: true`, `can_admins_bypass: false` |
 
 ## 5. Policy enforcement (can't be bypassed by a rushed developer)
@@ -75,7 +75,7 @@ Legend: `[x]` done and verified · `[~]` partly done · `[ ]` not started
 | [x] | Deployment needs environment approval | Kai | `production` environment reviewers |
 | [x] | Approval can't be reused after new pushes | Kai | Live ruleset: `dismiss_stale_reviews_on_push: true`, `require_last_push_approval: true` |
 | [x] | `main` can't be force-pushed or deleted | Kai | Live ruleset: `non_fast_forward` and `deletion` rules |
-| [ ] | Repo copy of the ruleset matches the live one | Kai | `.github/rulesets/protect-main.json` is out of date: it shows the stale-review settings as `false` and lacks the force-push, deletion and up-to-date rules. Export the live ruleset over it |
+| [x] | Repo copy of the ruleset matches the live one | Kai | `.github/rulesets/protect-main.json` replaced with the live ruleset from GitHub's API on Nov 11 |
 
 ## 6. Evaluation: seeded defects (same commit through both pipelines)
 
@@ -97,10 +97,10 @@ Record for each: unsecured result · secured result · which gate caught it · r
 
 | | Test | Owner | Branch / how | Result |
 |---|---|---|---|---|
-| [ ] | Push directly to `main` is rejected | Kai | `git push origin main` | |
-| [~] | Merging a PR with a failing / critical scan is blocked | Kai | `test-kai-failing-scan`; also seen on Elvin's PR (blocked by Trivy before the zlib fix) | |
-| [ ] | Approving your own deploy is blocked | Kai | settings test, screenshot | |
-| [~] | Deploy secret can't be stolen from a pull request | Kai | `test-kai-steal-secret` | |
+| [x] | Push directly to `main` is rejected | Kai | `git push origin HEAD:main` | Rejected Nov 11 (`GH013`) |
+| [x] | Merging a PR with a failing / critical scan is blocked | Kai | Phillip's PR #4; also seen on Elvin's PR (blocked by Trivy before the zlib fix) | Required Trivy checks failing, merge blocked |
+| [~] | Approving your own deploy is blocked | Kai | Trigger a deploy, try to approve it | Nov 3: no approve option for the person who triggered it. Screenshot still to take |
+| [x] | Deploy secret can't be stolen from a pull request | Kai | `test-kai-steal-secret`, PR #10 | Repo secret leaked, `DEPLOY_TOKEN` empty, `production` refused the PR. See `docs/07` |
 
 ## 8. Evaluation: performance overhead
 

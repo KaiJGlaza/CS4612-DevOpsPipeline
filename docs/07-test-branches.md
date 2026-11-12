@@ -32,10 +32,10 @@ Test branches are **never merged**. PRs stay open with "Do Not Merge" in the tit
 
 | Test | Owner | Branch / how | Expected | Result |
 |---|---|---|---|---|
-| Merge with a failing scan | Kai | `test-kai-failing-scan` (`flask==2.2.0`) | Merge button blocked | Trivy failed on push. PR not opened yet |
-| Approve your own deploy | Kai | Trigger a deploy and try to self-approve | GitHub refuses (`prevent_self_review`) | |
-| Steal the deploy secret from a PR | Kai | `test-kai-steal-secret` | Repo secret readable, env secret not | Pushed. PR not opened, so it hasn't run |
-| Push directly to `main` | Kai | `git push origin main` | Rejected by ruleset | |
+| Merge with a failing scan | Kai | Phillip's PR #4 (`urllib3==1.26.4`). Kai's `test-kai-failing-scan` repeated it, so it wasn't opened | Merge button blocked | Required Trivy `image-scan` and `library-scan` failing; merge blocked. The PR also lacks an approval and is out of date, so those rules block it too |
+| Approve your own deploy | Kai | Trigger a deploy and try to self-approve | GitHub refuses (`prevent_self_review`) | Nov 3 (run 41735134908): no approve option for the person who triggered the run. Screenshot to be taken on the next deploy Kai triggers |
+| Steal the deploy secret from a PR | Kai | `test-kai-steal-secret`, PR #10, run 43122287179 | Repo secret readable, env secret not | Repo secret `UNSAFE_DEPLOY_TOKEN` leaked (length 64; the base64 in the log decoded to the stored value). `DEPLOY_TOKEN` empty (length 0). The job using `production` was refused: "Branch refs/pull/10/merge is not allowed to deploy to production". PR closed and the leaked secret deleted |
+| Push directly to `main` | Kai | `git push origin HEAD:main` | Rejected by ruleset | Rejected, Nov 11: `GH013`, "Changes must be made through a pull request" and "6 of 6 required status checks are expected" |
 
 ## Performance overhead
 
