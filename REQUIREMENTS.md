@@ -99,7 +99,7 @@ Record for each: unsecured result · secured result · which gate caught it · r
 |---|---|---|---|---|
 | [x] | Push directly to `main` is rejected | Kai | `git push origin HEAD:main` | Rejected Nov 11 (`GH013`) |
 | [x] | Merging a PR with a failing / critical scan is blocked | Kai | Phillip's PR #4; also seen on Elvin's PR (blocked by Trivy before the zlib fix) | Required Trivy checks failing, merge blocked |
-| [~] | Approving your own deploy is blocked | Kai | Trigger a deploy, try to approve it | Nov 3: no approve option for the person who triggered it. Screenshot still to take |
+| [x] | Approving your own deploy is blocked | Kai | Merge PR #11, try to approve its deploy | Refused Nov 11 (run 43132320536, `current_user_can_approve: false`); yemouu approved. See `docs/07` |
 | [x] | Deploy secret can't be stolen from a pull request | Kai | `test-kai-steal-secret`, PR #10 | Repo secret leaked, `DEPLOY_TOKEN` empty, `production` refused the PR. See `docs/07` |
 
 ## 8. Evaluation: performance overhead
@@ -134,9 +134,9 @@ Record for each: unsecured result · secured result · which gate caught it · r
 | Week | Proposal task | Status |
 |---|---|---|
 | 1 | Define vulnerability requirements, scope, limitations | [~] covered by README "who does what"; limitations not written |
-| 2 | Sample app + unsecured pipeline; threat model with control mapping | [~] app built (awaiting merge); unsecured pipeline and threat model outstanding |
+| 2 | Sample app + unsecured pipeline; threat model with control mapping | [~] app merged (PR #9); threat model done (`docs/08`, PR #11); unsecured pipeline outstanding |
 | 3 | Secret scanning + static analysis | [x] |
 | 4 | Dependency + container scanning; failure policy per gate | [~] scanning done, policy not written |
 | 5 | Branch protection, required checks, least-privilege permissions | [~] protection + checks done, permissions uneven |
-| 6 | Run evaluation with seeded defects and policy tests | [ ] |
+| 6 | Run evaluation with seeded defects and policy tests | [~] policy tests done (section 7); seeded defects: only Phillip's 3 are planted |
 | Final | Limitations, report, demo | [ ] |

@@ -58,6 +58,7 @@ Two jobs, both on `ubuntu-24.04`:
 - Nov 3: the first deploy failed with "denied" when pushing to ghcr on `ubuntu-latest` (26.04, Docker 29).
 - Nov 6: fixed by pinning `ubuntu-24.04` (PR #8), and the deploy succeeded.
 - Nov 11: PR #9's deploy (run 43119689259) waited for review, was approved by yemouu (not the person who merged), and pushed tag `32ffe3e`.
+- Nov 11: PR #11's deploy (run 43132320536) was started by Kai's merge. Kai got no approve option; yemouu approved it and tag `64e789e` was pushed.
 - Nov 11, steal-the-secret test (PR #10): a repo secret leaked; `DEPLOY_TOKEN` stayed empty and the PR was refused the `production` environment. Details in [07-test-branches.md](07-test-branches.md).
 
 ## Limitations
