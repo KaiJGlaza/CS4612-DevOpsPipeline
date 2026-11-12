@@ -45,9 +45,10 @@ The result is that the only way onto `main` is a PR with green scans and a teamm
 
 - The rule is live on GitHub and enforced (`current_user_can_bypass: never` for team members).
 - Elvin's notes-app PR was blocked by a failing Trivy `image-scan` until the zlib fix landed. That's a real-world example of "can't merge with a failing scan".
-- The failing-scan and direct-push tests haven't been recorded yet (no PR opened for `test-kai-failing-scan`).
+- Nov 11: a direct push to `main` was rejected (`GH013`, "Changes must be made through a pull request").
+- Phillip's PR #4 has failing required Trivy checks and can't be merged. See [07-test-branches.md](07-test-branches.md).
+- Nov 11: the repo copy `protect-main.json` was replaced with the live ruleset from GitHub's API, so the two now match.
 
 ## Limitations
 
 - Only 1 approval is required.
-- The repo copy (`protect-main.json`) doesn't match the live ruleset, so someone reading the repo would underestimate the protection. Export the live ruleset over it.
