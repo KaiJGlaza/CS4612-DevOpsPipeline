@@ -1,0 +1,41 @@
+# Control group for the experiment: the same build and test as secure-deploy.yml,
+# set up the way a rushed team would. Every weakness here is on purpose and
+# listed in docs/02-unsecured-pipeline.md. Do not copy this into a real project.
+name: Unsecured deploy
+
+# push only: nothing triggered by pull requests or forks, so only people with
+# push access can make this run with the repo token and secret
+on: push
+
+permissions: write-all
+
+jobs:
+  ship:
+    runs-on: ubuntu-24.04
+    # the repo secret is visible to every step, including third-party actions
+    env:
+      IMAGE: ghcr.io/kaijglaza/cs4612-unsecured
+      DEPLOY_TOKEN: ${{ secrets.UNSAFE_DEPLOY_TOKEN }}
+    steps:
+      - name: Get the repo's files
+        uses: actions/checkout@v7
+
+      - name: Build the container image
+        run: docker build -t cs4612-app app
+
+      - name: Run the tests inside the image
+        run: docker run --rm cs4612-app python -m pytest -p no:cacheprovider
+
+      - name: Log in to GitHub's container registry
+        uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # tagged with the commit and the branch (a / isn't allowed in a tag)
+      - name: Push the image
+        run: |
+          docker tag cs4612-app "$IMAGE:${GITHUB_SHA::7}"
+          docker tag cs4612-app "$IMAGE:${GITHUB_REF_NAME//\//-}"
+          docker push --all-tags "$IMAGE"
