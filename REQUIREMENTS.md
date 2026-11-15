@@ -122,7 +122,7 @@ Record for each: unsecured result · secured result · which gate caught it · r
 
 | | Deliverable | Owner | Due |
 |---|---|---|---|
-| [ ] | Working secured pipeline + sample app on `main` | All | Nov 18 |
+| [x] | Working secured pipeline + sample app on `main` | All | Nov 18 |
 | [x] | Working unsecured control pipeline | Elvin | Nov 18 |
 | [ ] | Demo: bad commit ships through unsecured, blocked by secured | All | Nov 18 |
 | [ ] | Slides | Phillip | Nov 18 |

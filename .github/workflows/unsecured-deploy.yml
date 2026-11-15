@@ -5,9 +5,16 @@ name: Unsecured deploy
 
 # push only: nothing triggered by pull requests or forks, so only people with
 # push access can make this run with the repo token and secret
-on: push
+on:
+  push:
+    branches: ["**"]
 
 permissions: write-all
+
+# runs for the same branch queue up, so the branch tag always ends on the newest commit
+concurrency:
+  group: unsecured-${{ github.ref }}
+  cancel-in-progress: false
 
 jobs:
   ship:
@@ -33,9 +40,11 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      # tagged with the commit and the branch (a / isn't allowed in a tag)
+      # tagged with the commit and the branch. A tag only allows letters, digits, _ . -
+      # (up to 128, not starting with . or -), so anything else in the branch name becomes -
       - name: Push the image
         run: |
+          branch_tag=$(printf %s "$GITHUB_REF_NAME" | tr -c 'A-Za-z0-9_.-' '-' | sed 's/^[.-]*//' | cut -c1-128)
           docker tag cs4612-app "$IMAGE:${GITHUB_SHA::7}"
-          docker tag cs4612-app "$IMAGE:${GITHUB_REF_NAME//\//-}"
+          docker tag cs4612-app "$IMAGE:${branch_tag:-branch}"
           docker push --all-tags "$IMAGE"

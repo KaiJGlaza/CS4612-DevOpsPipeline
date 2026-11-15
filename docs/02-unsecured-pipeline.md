@@ -1,6 +1,6 @@
 # 2. Unsecured pipeline (the control)
 
-**Owner:** Elvin · **Status:** built and running on `elvin-unsecured-pipeline` (first successful ship Nov 15), not yet merged
+**Owner:** Elvin · **Status:** built (branch `elvin-unsecured-pipeline`, first successful ship Nov 15)
 
 ## In one sentence
 
@@ -13,11 +13,13 @@ A deliberately naive pipeline (test, build, ship) with no security checks, so we
 
 ## How it works
 
-One job, `ship`, on `ubuntu-24.04`, started by **every push to any branch**:
+One job, `ship`, on `ubuntu-24.04`, started by **every push to any branch** (pushing a git tag doesn't start it):
 
 1. Checks out the code.
 2. Builds the image and runs the tests inside it, with **the same two commands as the secured pipeline's `build` job**.
-3. Logs in to GitHub's container registry and pushes the image, tagged with the commit (`cb1b777`) and the branch name (`/` becomes `-`).
+3. Logs in to GitHub's container registry and pushes the image, tagged with the commit's short SHA (e.g. `cb1b777`) and the branch name. Any character a Docker tag can't hold (such as `/`, `+` or `@`) becomes `-`, so every branch name ships.
+
+Two pushes to the same branch queue up instead of racing, so the branch tag always ends on the newest commit.
 
 There's no scan, no pull request, no review and no approval. If the tests pass, it ships.
 
@@ -27,7 +29,7 @@ There's no scan, no pull request, no review and no approval. If the tests pass, 
 |---|---|---|
 | Token permissions | `permissions: {}`, then the minimum per job | `permissions: write-all` |
 | Action references | Locked to a commit (`@3d3c42e…`) | Movable version tags (`@v7`, `@v4`) |
-| Checkout credentials | `persist-credentials: false` | Default: the token stays in `.git/config` for later steps |
+| Checkout credentials | `persist-credentials: false` | Default: the token is saved to a credentials file in the runner's temp folder, linked from `.git/config`, so every later step can use it |
 | Deploy secret | `DEPLOY_TOKEN`, an environment secret, only after approval | `UNSAFE_DEPLOY_TOKEN`, a repo secret in the job's `env`, visible to every step including third-party actions |
 | Approval | `production` environment, reviewers, no self-review | None |
 | Triggers | Push to `main` (which needs a reviewed PR with green scans) | Push to any branch |
@@ -35,7 +37,7 @@ There's no scan, no pull request, no review and no approval. If the tests pass, 
 
 **Hard limits on the sloppiness.** It's meant to show a careless team, not an open door:
 - **Push is the only trigger.** Nothing runs from pull requests or forks, so only people with push access to the repo can start it with the repo's token and secret.
-- **It never prints a secret.**
+- **It never prints a secret.** No step even uses `DEPLOY_TOKEN`; it's in the job's `env` only to show how far a repo secret spreads.
 - `UNSAFE_DEPLOY_TOKEN` holds a dummy value. Never put a real credential in it.
 - `main` is still protected by the `protect-main` ruleset, which the write-all token can't bypass.
 
