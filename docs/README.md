@@ -24,8 +24,8 @@ We run the same small app through two pipelines and plant bad code to compare th
 
 | # | Section | Owner | Status | Page |
 |---|---|---|---|---|
-| 1 | Sample app | Elvin | in progress | [01-sample-app.md](01-sample-app.md) |
-| 2 | Unsecured pipeline (the control) | Elvin | not started | [02-unsecured-pipeline.md](02-unsecured-pipeline.md) |
+| 1 | Sample app | Elvin | done | [01-sample-app.md](01-sample-app.md) |
+| 2 | Unsecured pipeline (the control) | Elvin | built, awaiting merge | [02-unsecured-pipeline.md](02-unsecured-pipeline.md) |
 | 3 | Secret and code scanning (Gitleaks, CodeQL) | Kofi | done | [03-secret-and-code-scanning.md](03-secret-and-code-scanning.md) |
 | 4 | Library and container scanning (Trivy) | Phillip | done | [04-library-and-container-scanning.md](04-library-and-container-scanning.md) |
 | 5 | Secure deploy (approval + locked secret) | Kai | done | [05-secure-deploy.md](05-secure-deploy.md) |

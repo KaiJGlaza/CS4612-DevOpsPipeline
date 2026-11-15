@@ -2,7 +2,7 @@
 
 Taken from our project proposal ("Secure DevOps Pipeline"). Check items off as they land on `main` and are verified, and note where the evidence lives.
 
-Status as of Nov 9. Presentation is **Nov 18**, report due **Dec 4**.
+Status as of Nov 15. Presentation is **Nov 18**, report due **Dec 4**.
 
 Legend: `[x]` done and verified · `[~]` partly done · `[ ]` not started
 
@@ -12,10 +12,10 @@ Legend: `[x]` done and verified · `[~]` partly done · `[ ]` not started
 
 | | Requirement | Owner | Evidence / notes |
 |---|---|---|---|
-| [~] | Sample application the pipelines build and deploy | Elvin | Notes app built on `elvin-sample-app`: 35 tests, all 6 scans green. Waiting on a teammate's approval to merge |
-| [~] | App has real injection surface (SQL + HTML) for seeded defects | Elvin | `/notes/search` (SQLi) and `/search` (XSS). Local CodeQL flags both planted bugs. Done once merged |
-| [ ] | **Unsecured pipeline**: test → build → ship, no scans, no approval | Elvin | Not yet in `.github/workflows/` |
-| [ ] | Both pipelines run on the same runner image so timings are comparable | Elvin | Secure deploy pinned to `ubuntu-24.04` (PR #8); unsecured pipeline must match |
+| [x] | Sample application the pipelines build and deploy | Elvin | Notes app (35 tests, all 6 scans green), merged in PR #9, Nov 11 |
+| [x] | App has real injection surface (SQL + HTML) for seeded defects | Elvin | `/notes/search` (SQLi) and `/search` (XSS), merged in PR #9, Nov 11. Local CodeQL flags both planted bugs |
+| [x] | **Unsecured pipeline**: test → build → ship, no scans, no approval | Elvin | `unsecured-deploy.yml`. First ship Nov 15 (run 43730580164); a failing test stops the ship (run 43731775002). See `docs/02` |
+| [x] | Both pipelines run on the same runner image so timings are comparable | Elvin | Both on `ubuntu-24.04` with the same build and test commands |
 
 ## 2. Threat model (OWASP Top 10 CI/CD Security Risks)
 
@@ -122,10 +122,10 @@ Record for each: unsecured result · secured result · which gate caught it · r
 
 | | Deliverable | Owner | Due |
 |---|---|---|---|
-| [ ] | Working secured pipeline + sample app on `main` | All | Nov 17 |
-| [ ] | Working unsecured control pipeline | Elvin | Nov 17 |
-| [ ] | Demo: bad commit ships through unsecured, blocked by secured | All | Nov 17 |
-| [ ] | Slides | Phillip | Nov 17 |
+| [ ] | Working secured pipeline + sample app on `main` | All | Nov 18 |
+| [x] | Working unsecured control pipeline | Elvin | Nov 18 |
+| [ ] | Demo: bad commit ships through unsecured, blocked by secured | All | Nov 18 |
+| [ ] | Slides | Phillip | Nov 18 |
 | [ ] | Report: intro + results (Elvin), background + secret/code scanning (Kofi), library/container scanning + limitations (Phillip), threat model + secure deploy (Kai) | All | Dec 4 |
 | [ ] | Limitations section (e.g. no external secret store, scans not re-run at deploy, CodeQL misses XSS in `@app.get` routes and templates, scanner data errors, `apt-get upgrade` reproducibility) | Phillip | Dec 4 |
 
@@ -134,7 +134,7 @@ Record for each: unsecured result · secured result · which gate caught it · r
 | Week | Proposal task | Status |
 |---|---|---|
 | 1 | Define vulnerability requirements, scope, limitations | [~] covered by README "who does what"; limitations not written |
-| 2 | Sample app + unsecured pipeline; threat model with control mapping | [~] app merged (PR #9); threat model done (`docs/08`, PR #11); unsecured pipeline outstanding |
+| 2 | Sample app + unsecured pipeline; threat model with control mapping | [x] app merged (PR #9); threat model done (`docs/08`, PR #11); unsecured pipeline built (`docs/02`) |
 | 3 | Secret scanning + static analysis | [x] |
 | 4 | Dependency + container scanning; failure policy per gate | [~] scanning done, policy not written |
 | 5 | Branch protection, required checks, least-privilege permissions | [~] protection + checks done, permissions uneven |
