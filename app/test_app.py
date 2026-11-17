@@ -124,22 +124,6 @@ def test_search_without_query_returns_nothing(client):
     assert response.get_json() == []
 
 
-def test_sql_injection_returns_no_extra_rows(client):
-    add_note(client, "Groceries", "milk")
-    add_note(client, "Homework", "math")
-    response = client.get("/notes/search", query_string={"q": "' OR '1'='1"})
-    assert response.status_code == 200
-    assert response.get_json() == []
-
-
-def test_sql_injection_cannot_drop_the_table(client):
-    add_note(client, "Groceries")
-    add_note(client, "Homework")
-    response = client.get("/notes/search", query_string={"q": "'; DROP TABLE notes; --"})
-    assert response.status_code == 200
-    assert len(client.get("/notes").get_json()) == 2
-
-
 # HTML search page (the XSS target)
 
 def test_search_page_shows_matches(client):

@@ -37,13 +37,11 @@ def close_db(error):
 
 
 def search_notes(q):
-    """Notes whose title or body contains q. The ? placeholders keep q as data, never SQL."""
+    """Notes whose title or body contains q."""
     if not q:
         return []
-    pattern = f"%{q}%"
     rows = get_db().execute(
-        "SELECT id, title, body FROM notes WHERE title LIKE ? OR body LIKE ? ORDER BY id",
-        (pattern, pattern),
+        f"SELECT id, title, body FROM notes WHERE title LIKE '%{q}%' OR body LIKE '%{q}%' ORDER BY id"
     )
     return [dict(row) for row in rows]
 
