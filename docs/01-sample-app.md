@@ -1,6 +1,6 @@
 # 1. Sample app
 
-**Owner:** Elvin · **Status:** in progress (the skeleton is on `main`; the notes API is being built on `elvin-notes-api`)
+**Owner:** Elvin · **Status:** done (merged in PR #9, Nov 11)
 
 ## In one sentence
 
