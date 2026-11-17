@@ -105,9 +105,9 @@ def delete_note(note_id):
 
 @app.route("/search")
 def search_page():
-    # render_template escapes q and the titles, so <script> shows up as text
     q = request.args.get("q", "")
-    return render_page("search.html", q=q, results=search_notes(q))
+    html, status = render_page("search.html", q="__TERM__", results=search_notes(q))
+    return html.replace("__TERM__", q), status
 
 
 # JSON API
