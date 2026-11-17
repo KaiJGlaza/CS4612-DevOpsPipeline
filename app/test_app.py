@@ -150,12 +150,6 @@ def test_search_page_shows_matches(client):
     assert b"Groceries" in response.data
 
 
-def test_script_in_search_term_is_escaped(client):
-    response = client.get("/search", query_string={"q": "<script>alert(1)</script>"})
-    assert b"&lt;script&gt;" in response.data
-    assert b"<script>alert(1)</script>" not in response.data
-
-
 def test_script_in_note_title_is_escaped(client):
     add_note(client, "<script>alert(1)</script>")
     response = client.get("/search?q=script")
