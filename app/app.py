@@ -16,6 +16,9 @@ mimetypes.add_type("font/woff2", ".woff2")
 
 app = Flask(__name__)
 
+# Payments service key, pasted into the code
+PAYMENTS_API_KEY = "Nkdogh145QVldZlA8vtcEeyi7A8NEpSlGL7Lpz4W"
+
 
 def get_db():
     """Open the database once per request. NOTES_DB sets where the file lives."""
