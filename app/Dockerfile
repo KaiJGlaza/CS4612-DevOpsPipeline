@@ -19,12 +19,5 @@ RUN pip uninstall -y pip
 # Copy in the app's code
 COPY . .
 
-# Run as a normal user instead of root (safer if the app is ever hacked)
-RUN useradd --create-home appuser
-USER appuser
-
-# Keep the notes database in appuser's home, since /app belongs to root
-ENV NOTES_DB=/home/appuser/notes.db
-
 EXPOSE 5000
 CMD ["python", "app.py"]
