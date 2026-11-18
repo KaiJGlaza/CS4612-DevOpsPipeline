@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block main %}
+<h1>New note</h1>
+<form class="note-form" method="post" action="{{ url_for('create_note_form') }}">
+  <div class="field">
+    <label for="title">Title</label>
+    <input id="title" name="title" value="{{ form.title }}"{% if error %} aria-invalid="true" aria-describedby="title-error"{% endif %}>
+    {% if error %}<p class="field-error" id="title-error">{{ error }}</p>{% endif %}
+  </div>
+  <div class="field">
+    <label for="body">Note</label>
+    <textarea id="body" name="body">{{ form.body }}</textarea>
+  </div>
+  <button class="button">Save note</button>
+</form>
+{% endblock %}
