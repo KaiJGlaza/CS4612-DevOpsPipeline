@@ -1,6 +1,6 @@
 # 7. Test branches and results
 
-**Owner:** everyone (each person seeds 3 tests) · **Status:** in progress
+**Owner:** everyone (each person seeds 3 tests) · **Status:** seeded defects and policy tests done; timings to do
 
 ## In one sentence
 
@@ -19,14 +19,18 @@ Test branches are **never merged**. PRs stay open with "Do Not Merge" in the tit
 
 | Test | Owner | Branch / PR | The flaw | Expected catch | Unsecured | Secured |
 |---|---|---|---|---|---|---|
-| SQL injection | Elvin | `test-elvin-sqli` (todo) | Search builds SQL with an f-string | CodeQL | | |
-| XSS | Elvin | `test-elvin-xss` (todo) | Search page returns unescaped HTML | CodeQL | | |
-| Fake API key | Kofi | (todo) | Hardcoded API key in code | Gitleaks | | |
-| Fake encryption key | Kofi | (todo) | Hardcoded crypto key | Gitleaks | | |
-| Key in an old commit | Kofi | (todo) | Key added, then deleted | Gitleaks (full history) | | |
-| Outdated library | Phillip | `PhillipEiser-test-1`, PR #4 | `urllib3==1.26.4` | Trivy `library-scan` | | **blocked**, Trivy failed |
-| App runs as root | Phillip | `PhillipEiser-test-2`, PR #5 | Non-root user removed from Dockerfile | Trivy `dockerfile-scan` | | **blocked**, Trivy failed |
-| Outdated base image | Phillip | `PhillipEiser-test-3`, PR #6 | `python:3.11.0-slim` | Trivy `image-scan` | | **blocked**, Trivy failed |
+| SQL injection | Elvin | `test-elvin-sqli`, PR #14 | Search builds SQL with an f-string | CodeQL | shipped, [44186982702](https://github.com/KaiJGlaza/CS4612-DevOpsPipeline/actions/runs/44186982702) | **detected, not blocked**: the `CodeQL` alerts check failed, but it isn't a required check; the required CodeQL jobs passed |
+| XSS | Elvin | `test-elvin-xss`, PR #15 | Search page returns unescaped HTML | CodeQL | shipped, [44187039592](https://github.com/KaiJGlaza/CS4612-DevOpsPipeline/actions/runs/44187039592) | **detected, not blocked**: same as SQL injection |
+| Fake API key | Kofi | `test-kofi-api-key`, PR #16 | Hardcoded API key in code | Gitleaks | shipped, [44190093019](https://github.com/KaiJGlaza/CS4612-DevOpsPipeline/actions/runs/44190093019) | **blocked**, Gitleaks failed, [44190153024](https://github.com/KaiJGlaza/CS4612-DevOpsPipeline/actions/runs/44190153024) |
+| Fake encryption key | Kofi | `test-kofi-crypto-key`, PR #17 | Hardcoded crypto key | Gitleaks | shipped, [44190092685](https://github.com/KaiJGlaza/CS4612-DevOpsPipeline/actions/runs/44190092685) | **blocked**, Gitleaks failed, [44190156884](https://github.com/KaiJGlaza/CS4612-DevOpsPipeline/actions/runs/44190156884). Trivy `library-scan` and `image-scan` also flagged the private key, [44190156891](https://github.com/KaiJGlaza/CS4612-DevOpsPipeline/actions/runs/44190156891) |
+| Key in an old commit | Kofi | `test-kofi-old-commit`, PR #18 | Key added, then deleted | Gitleaks (full history) | shipped, [44190093136](https://github.com/KaiJGlaza/CS4612-DevOpsPipeline/actions/runs/44190093136) | **blocked**, Gitleaks failed, [44190163031](https://github.com/KaiJGlaza/CS4612-DevOpsPipeline/actions/runs/44190163031) |
+| Outdated library | Phillip | `PhillipEiser-test-1`, PR #4 | `urllib3==1.26.4` | Trivy `library-scan` | shipped, [44320989146](https://github.com/KaiJGlaza/CS4612-DevOpsPipeline/actions/runs/44320989146) | **blocked**, Trivy `library-scan` and `image-scan` failed, [44321004069](https://github.com/KaiJGlaza/CS4612-DevOpsPipeline/actions/runs/44321004069) |
+| App runs as root | Phillip | `PhillipEiser-test-2`, PR #5 | Non-root user removed from Dockerfile | Trivy `dockerfile-scan` | shipped, [44320992064](https://github.com/KaiJGlaza/CS4612-DevOpsPipeline/actions/runs/44320992064) | **blocked**, Trivy `dockerfile-scan` failed, [44321002945](https://github.com/KaiJGlaza/CS4612-DevOpsPipeline/actions/runs/44321002945) |
+| Outdated base image | Phillip | `PhillipEiser-test-3`, PR #6 | `python:3.11.0-slim` | Trivy `image-scan` | shipped, [44321708503](https://github.com/KaiJGlaza/CS4612-DevOpsPipeline/actions/runs/44321708503) | **blocked**, Trivy `image-scan` failed, [44321721999](https://github.com/KaiJGlaza/CS4612-DevOpsPipeline/actions/runs/44321721999) |
+
+**Summary:** all 8 shipped through the unsecured pipeline. The secured pipeline blocked 6 and detected the other 2 (SQLi, XSS) without blocking them, because the CodeQL alerts check isn't required by the ruleset.
+
+**Notes on Phillip's branches (Nov 18):** they were created before the unsecured pipeline existed, so `main` was merged into them to run it. On test 3, the `apt-get upgrade` line from `main` fails on `python:3.11.0-slim` (apt exit code 100) and stopped the unsecured build, so it was removed on that branch only. The first merge run for test 3 ([44320999144](https://github.com/KaiJGlaza/CS4612-DevOpsPipeline/actions/runs/44320999144)) is that failed build and doesn't count as a result.
 
 ## Policy enforcement
 

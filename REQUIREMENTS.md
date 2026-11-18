@@ -2,7 +2,7 @@
 
 Taken from our project proposal ("Secure DevOps Pipeline"). Check items off as they land on `main` and are verified, and note where the evidence lives.
 
-Status as of Nov 15. Presentation is **Nov 18**, report due **Dec 4**.
+Status as of Nov 18. Presentation is **Nov 18**, report due **Dec 4**.
 
 Legend: `[x]` done and verified · `[~]` partly done · `[ ]` not started
 
@@ -50,9 +50,9 @@ Legend: `[x]` done and verified · `[~]` partly done · `[ ]` not started
 
 | | Requirement | Owner | Evidence / notes |
 |---|---|---|---|
-| [~] | Trivy gates fail on HIGH/CRITICAL | Phillip | `exit-code: "1"`, `severity: HIGH,CRITICAL`. Image scan uses `ignore-unfixed` |
-| [~] | Gitleaks gate fails on any detected secret | Kofi | Action default; not written down |
-| [~] | CodeQL gate blocks merge on alerts | Kofi | Required check exists; confirm alerts actually fail it (code scanning merge protection / severity threshold) |
+| [x] | Trivy gates fail on HIGH/CRITICAL | Phillip | `exit-code: "1"`, `severity: HIGH,CRITICAL`. Image scan uses `ignore-unfixed`. Verified Nov 18 on PRs #4, #5, #6 (section 6) |
+| [x] | Gitleaks gate fails on any detected secret | Kofi | Action default. Verified Nov 17 on PRs #16, #17, #18 (section 6) |
+| [ ] | CodeQL gate blocks merge on alerts | Kofi + Kai | **Checked Nov 18: it doesn't.** On PRs #14 (SQLi) and #15 (XSS) the `CodeQL` alerts check failed, but the ruleset only requires the analysis jobs `CodeQL (python, none)` / `CodeQL (actions, none)`, which passed. Fix: add `CodeQL` as a required check or turn on code scanning merge protection in the ruleset (Kai, admin). Otherwise, list as a limitation |
 | [ ] | **Failure policy written down** for every gate (what fails, what severity, who can override) | Kofi + Phillip | Proposal says "explicitly defined failure policy" |
 
 ## 4. Identity, secrets, least privilege
@@ -61,7 +61,7 @@ Legend: `[x]` done and verified · `[~]` partly done · `[ ]` not started
 |---|---|---|---|
 | [x] | Deploy secret only available in the protected `production` environment | Kai | `secure-deploy.yml` → `environment: production`, `DEPLOY_TOKEN` |
 | [x] | Secret never printed; only a fingerprint | Kai | `sha256sum` step in `secure-deploy.yml` |
-| [~] | Least-privilege `permissions:` on every workflow | All | `secure-deploy.yml` uses `permissions: {}` + per-job. `trivy-scan.yml` and `codeql.yml` have no top-level block; `gitleaks.yml` grants `pull-requests: write` workflow-wide |
+| [~] | Least-privilege `permissions:` on every workflow | All | `secure-deploy.yml` uses `permissions: {}` + per-job. `trivy-scan.yml` is `contents: read` (PR #19). `codeql.yml` sets permissions per job (`security-events: write`, `packages: read`), which is enough. Left: `gitleaks.yml` grants `pull-requests: write` workflow-wide (the action uses it to comment on PRs) |
 | [~] | Third-party actions pinned to commit SHAs | All | Pinned in `secure-deploy.yml`/Trivy action. Tags (`@v4`, `@v6`, `@v7`) still used in `codeql.yml`, `gitleaks.yml`, `trivy-scan.yml` checkout |
 | [ ] | Secrets in an **external store** (proposal names AWS Secrets Manager) | Kai | Not implemented: GitHub environment secrets are used instead. Listed as a limitation in `docs/05-secure-deploy.md` and `docs/08-threat-model.md` |
 | [x] | Role separation: author ≠ deploy approver | Kai | `production` env: required reviewers, `prevent_self_review: true`, `can_admins_bypass: false` |
@@ -81,16 +81,18 @@ Legend: `[x]` done and verified · `[~]` partly done · `[ ]` not started
 
 Record for each: unsecured result · secured result · which gate caught it · run links.
 
+Nov 18: `main` merged into Phillip's 3 branches so the unsecured pipeline (added Nov 15) runs on them. On test 3, `apt-get upgrade` from `main` fails on `python:3.11.0-slim`, so that line was removed on the branch only.
+
 | | Test | Owner | Branch | Unsecured | Secured |
 |---|---|---|---|---|---|
-| [ ] | SQL injection | Elvin | `test-elvin-sqli` (todo). Plant verified with local CodeQL | | |
-| [ ] | XSS | Elvin | `test-elvin-xss` (todo). Plant A verified with local CodeQL; needs `@app.route` | | |
-| [ ] | Hardcoded API key | Kofi | not found on remote | | |
-| [ ] | Hardcoded cryptographic key | Kofi | not found on remote | | |
-| [ ] | Key hidden in an old commit | Kofi | not found on remote | | |
-| [~] | Outdated / vulnerable library | Phillip | `PhillipEiser-test-1` (PR #4) | | blocked (Trivy) |
-| [~] | Container runs as root | Phillip | `PhillipEiser-test-2` (PR #5) | | blocked (Trivy) |
-| [~] | Outdated base image | Phillip | `PhillipEiser-test-3` (PR #6) | | blocked (Trivy) |
+| [~] | SQL injection | Elvin | `test-elvin-sqli`, PR #14 | shipped ([44186982702](https://github.com/KaiJGlaza/CS4612-DevOpsPipeline/actions/runs/44186982702)) | **detected, not blocked**: `CodeQL` alerts check failed, required CodeQL jobs passed (see 3c) |
+| [~] | XSS | Elvin | `test-elvin-xss`, PR #15 | shipped ([44187039592](https://github.com/KaiJGlaza/CS4612-DevOpsPipeline/actions/runs/44187039592)) | **detected, not blocked**: same as SQLi |
+| [x] | Hardcoded API key | Kofi | `test-kofi-api-key`, PR #16 | shipped ([44190093019](https://github.com/KaiJGlaza/CS4612-DevOpsPipeline/actions/runs/44190093019)) | blocked: Gitleaks ([44190153024](https://github.com/KaiJGlaza/CS4612-DevOpsPipeline/actions/runs/44190153024)) |
+| [x] | Hardcoded cryptographic key | Kofi | `test-kofi-crypto-key`, PR #17 | shipped ([44190092685](https://github.com/KaiJGlaza/CS4612-DevOpsPipeline/actions/runs/44190092685)) | blocked: Gitleaks ([44190156884](https://github.com/KaiJGlaza/CS4612-DevOpsPipeline/actions/runs/44190156884)), and Trivy `library-scan` + `image-scan` also flagged the private key ([44190156891](https://github.com/KaiJGlaza/CS4612-DevOpsPipeline/actions/runs/44190156891)) |
+| [x] | Key hidden in an old commit | Kofi | `test-kofi-old-commit`, PR #18 | shipped ([44190093136](https://github.com/KaiJGlaza/CS4612-DevOpsPipeline/actions/runs/44190093136)) | blocked: Gitleaks, full history ([44190163031](https://github.com/KaiJGlaza/CS4612-DevOpsPipeline/actions/runs/44190163031)) |
+| [x] | Outdated / vulnerable library | Phillip | `PhillipEiser-test-1`, PR #4 | shipped ([44320989146](https://github.com/KaiJGlaza/CS4612-DevOpsPipeline/actions/runs/44320989146)) | blocked: Trivy `library-scan` + `image-scan` ([44321004069](https://github.com/KaiJGlaza/CS4612-DevOpsPipeline/actions/runs/44321004069)) |
+| [x] | Container runs as root | Phillip | `PhillipEiser-test-2`, PR #5 | shipped ([44320992064](https://github.com/KaiJGlaza/CS4612-DevOpsPipeline/actions/runs/44320992064)) | blocked: Trivy `dockerfile-scan` ([44321002945](https://github.com/KaiJGlaza/CS4612-DevOpsPipeline/actions/runs/44321002945)) |
+| [x] | Outdated base image | Phillip | `PhillipEiser-test-3`, PR #6 | shipped ([44321708503](https://github.com/KaiJGlaza/CS4612-DevOpsPipeline/actions/runs/44321708503)) | blocked: Trivy `image-scan` ([44321721999](https://github.com/KaiJGlaza/CS4612-DevOpsPipeline/actions/runs/44321721999)) |
 | [x] | *Real, not planted:* new zlib CVEs in `python:3.13-slim` | Elvin | `elvin-sample-app`, first commit | (would have shipped) | blocked (Trivy `image-scan`); fixed with `apt-get upgrade`. See `docs/04` |
 
 ## 7. Evaluation: policy enforcement tests
@@ -127,7 +129,7 @@ Record for each: unsecured result · secured result · which gate caught it · r
 | [ ] | Demo: bad commit ships through unsecured, blocked by secured | All | Nov 18 |
 | [ ] | Slides | Phillip | Nov 18 |
 | [ ] | Report: intro + results (Elvin), background + secret/code scanning (Kofi), library/container scanning + limitations (Phillip), threat model + secure deploy (Kai) | All | Dec 4 |
-| [ ] | Limitations section (e.g. no external secret store, scans not re-run at deploy, CodeQL misses XSS in `@app.get` routes and templates, scanner data errors, `apt-get upgrade` reproducibility) | Phillip | Dec 4 |
+| [ ] | Limitations section (e.g. CodeQL alerts not merge-blocking, no external secret store, scans not re-run at deploy, CodeQL misses XSS in `@app.get` routes and templates, scanner data errors, `apt-get upgrade` reproducibility) | Phillip | Dec 4 |
 
 ## Proposal timeline vs. where we are
 
@@ -138,5 +140,5 @@ Record for each: unsecured result · secured result · which gate caught it · r
 | 3 | Secret scanning + static analysis | [x] |
 | 4 | Dependency + container scanning; failure policy per gate | [~] scanning done, policy not written |
 | 5 | Branch protection, required checks, least-privilege permissions | [~] protection + checks done, permissions uneven |
-| 6 | Run evaluation with seeded defects and policy tests | [~] policy tests done (section 7); seeded defects: only Phillip's 3 are planted |
+| 6 | Run evaluation with seeded defects and policy tests | [~] policy tests done (section 7); all 8 seeded defects run (section 6): 6 blocked, 2 detected but not blocked. Timings (section 8) not done |
 | Final | Limitations, report, demo | [ ] |
