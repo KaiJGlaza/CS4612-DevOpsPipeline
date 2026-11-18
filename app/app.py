@@ -16,6 +16,9 @@ mimetypes.add_type("font/woff2", ".woff2")
 
 app = Flask(__name__)
 
+# Weather service key, pasted into the code
+WEATHER_API_KEY = "YlndLEqm0UhlgKah3TQoF83c6f19m390GY0oXWk1"
+
 
 def get_db():
     """Open the database once per request. NOTES_DB sets where the file lives."""
