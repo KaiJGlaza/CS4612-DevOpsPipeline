@@ -1,6 +1,6 @@
 # 7. Test branches and results
 
-**Owner:** everyone (each person seeds 3 tests) · **Status:** seeded defects and policy tests done; timings to do
+**Owner:** everyone (each person seeds 3 tests) · **Status:** done
 
 ## In one sentence
 
@@ -43,13 +43,38 @@ Test branches are **never merged**. PRs stay open with "Do Not Merge" in the tit
 
 ## Performance overhead
 
-Run the same commit through both pipelines several times on `ubuntu-24.04`, and use the median.
+Measured Nov 18 from the GitHub Actions job timings (all on GitHub-hosted runners). Scan numbers are the push-event runs on the 8 seeded-defect commits, so the unsecured and secured pipelines ran on the **same commit at the same moment**. Build and deploy numbers are the 2 `secure-deploy.yml` runs on `main` (runs 44184891360, 44190815341), since that workflow only runs on `main`. Times are medians, in seconds.
+
+### Per job
+
+| Job | Pipeline | Median (s) | Range (s) |
+|---|---|---|---|
+| `ship` (build + test + push) | unsecured | 32 | 28–44 |
+| Gitleaks | secured, scan | 8.5 | 7–15 |
+| CodeQL (python) | secured, scan | 49.5 | 39–88 |
+| CodeQL (actions) | secured, scan | 38 | 28–47 |
+| Trivy `library-scan` | secured, scan | 13.5 | 10–16 |
+| Trivy `dockerfile-scan` | secured, scan | 10.5 | 7–13 |
+| Trivy `image-scan` | secured, scan | 30.5 | 26–56 |
+| `build` (build + test + upload) | secured, deploy | 27.5 | 25–30 |
+| `deploy` (download + push) | secured, deploy | 23 | 21–25 |
+| Waiting for a teammate's approval | secured, deploy | 43.5 | 26–61 (human time, not machine time) |
+
+### Totals
 
 | Metric | Unsecured | Secured | Overhead |
 |---|---|---|---|
-| Total pipeline time | | | |
-| Time per stage / job | | | |
-| % of evaluation runs failed by a security gate | n/a | | |
+| Time until the scan verdict (scans run in parallel; slowest job) | n/a | 52 | n/a |
+| Machine time from push to shipped image (scans + build + deploy, no approval wait) | 32 | 102.5 | **+70.5 s (3.2×)** |
+| Runner time used (all jobs added up) | 32 | 206 | +174 s (6.4×) |
+| Seeded-defect commits failed by a required security check | n/a | 6 of 8 (75%) | |
+| Seeded-defect commits flagged by any security check | n/a | 8 of 8 (100%) | |
+
+**Notes:**
+- CodeQL (python) is the slowest job in every run, so it sets the scan time.
+- The scans run twice per PR (once on push, once on the pull request), so real runner time is higher than shown. Only the pull request run gates the merge.
+- The secured pipeline also adds human waiting time: a PR review before merging, and the deploy approval (26 s and 61 s in the two runs measured). This depends on people, not the pipeline.
+- Small sample: 8 commits for the scans, 2 runs for the secured build and deploy.
 
 Pull timings with:
 ```

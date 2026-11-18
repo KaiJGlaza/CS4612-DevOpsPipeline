@@ -108,9 +108,9 @@ Nov 18: `main` merged into Phillip's 3 branches so the unsecured pipeline (added
 
 | | Metric | Owner | Notes |
 |---|---|---|---|
-| [ ] | Total pipeline time, unsecured vs secured | Elvin | Same commit, same runner. Several runs, use the median |
-| [ ] | Per-stage / per-job time | Elvin | From the Actions run timings (`gh run view --json jobs`) |
-| [ ] | Proportion of builds failed by security gates | Elvin | Over all evaluation runs |
+| [x] | Total pipeline time, unsecured vs secured | Elvin | Medians: unsecured 32 s; secured 102.5 s machine time (52 s scans + 27.5 s build + 23 s deploy), **+70.5 s, 3.2×**, plus human approval time. See `docs/07` |
+| [x] | Per-stage / per-job time | Elvin | Per-job table in `docs/07`. CodeQL (python) is the slowest job (median 49.5 s) |
+| [x] | Proportion of builds failed by security gates | Elvin | 6 of 8 seeded-defect commits (75%) failed a required check; 8 of 8 flagged by some check |
 | [ ] | Results chart | Elvin | Hand to Phillip for slides |
 
 ## 8b. Added scope (future work)
@@ -140,5 +140,5 @@ Nov 18: `main` merged into Phillip's 3 branches so the unsecured pipeline (added
 | 3 | Secret scanning + static analysis | [x] |
 | 4 | Dependency + container scanning; failure policy per gate | [~] scanning done, policy not written |
 | 5 | Branch protection, required checks, least-privilege permissions | [~] protection + checks done, permissions uneven |
-| 6 | Run evaluation with seeded defects and policy tests | [~] policy tests done (section 7); all 8 seeded defects run (section 6): 6 blocked, 2 detected but not blocked. Timings (section 8) not done |
+| 6 | Run evaluation with seeded defects and policy tests | [~] policy tests done (section 7); all 8 seeded defects run (section 6): 6 blocked, 2 detected but not blocked. Timings done (section 8) |
 | Final | Limitations, report, demo | [ ] |
